@@ -1,10 +1,11 @@
 'use strict';
 
-const mongoose = require("mongoose"); 
+var mongoose = require("mongoose"); 
+mongoose.Promise = global.Promise;
 
 module.exports = () => {
 	
-	mongoose.connect('mongodb://localhost/pokemons'); 
+	mongoose.connect('mongodb://localhost/teste'); 
 
 	const db = mongoose.connection; 
 	
