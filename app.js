@@ -1,16 +1,18 @@
 'use strict';
 
-const express      = require('express');
-const expressLoad  = require('express-load');
-const path         = require('path');
-const session      = require('express-session');
-const bodyParser   = require('body-parser');
-const http         = require('http');
-const app          = express();
-
+const express          = require('express');
+const expressLoad      = require('express-load');
+const path             = require('path');
+const session          = require('express-session');
+const bodyParser       = require('body-parser');
+const http             = require('http');
+const app              = express();
+const expressValidator = require('express-validator'); 
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(expressValidator()); 
+
 app.use(session({secret: 'sometext', resave: true, saveUninitialized: true}));
 
 app.use(express.static(path.join(__dirname, '/public')));
