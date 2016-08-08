@@ -1,3 +1,5 @@
+var SHA256 = require("crypto-js/sha256"); 
+
 module.exports = (app) => {
 	
 	var Usuario = app.models.usuarioModel; 
@@ -28,7 +30,7 @@ module.exports = (app) => {
 
 			var nome  = req.body.nome; 
 			var email = req.body.email; 
-			var senha = req.body.senha; 
+			var senha = SHA256(req.body.senha).toString(); 
 			var idade = req.body.idade; 
 			var isAdm = req.body.isAdm;
 
@@ -53,7 +55,7 @@ module.exports = (app) => {
 
 		login: (req, res, next) => {
 			var email = req.query.email; 
-			var senha = req.query.senha; 
+			var senha = SHA256(req.query.senha).toString(); 
 
 			var session = req.session; 
 
@@ -64,12 +66,12 @@ module.exports = (app) => {
 			select('nome email idade isAdm'). 
 			exec(function(error, usuario){
 				if(error){
-					res.json({status: false, msg: err});
+					res.json({status: false, msg: error});
 					return; 
 				}
 
 				if(typeof usuario == 'undefined'){
-					res.json({status: false, msg: err});
+					res.json({status: false, msg: "Usuário não encontrado"});
 					return;
 				}
 
