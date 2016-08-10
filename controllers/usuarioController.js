@@ -1,4 +1,5 @@
 var SHA256 = require("crypto-js/sha256"); 
+var ValidationFactory = require('../util/ValidationFactory'); 
 
 module.exports = (app) => {
 	
@@ -6,14 +7,10 @@ module.exports = (app) => {
 
 	var controller = {
 		create: (req, res, next) =>{
-			req.checkBody('nome' , 'O Nome é inválido').notEmpty().isLength({min: 3, max: 45});
-			req.checkBody('email', 'O Email é inválido').notEmpty().isEmail();
-			req.checkBody('senha', 'O Senha é inválido').notEmpty().isLength({min: 6, max: 16});
-
-			//porque a idade precisa ser diferente de vazia e inteira. 
+			//Validação vem aqui: 
+			var val = new ValidationFactory(req); 
 			
-			req.checkBody('idade', 'O Idade é inválido').notEmpty().isInt({min: 10, max: 120});
-			req.checkBody('isAdm', 'O dado de adminstrador é inválido').notEmpty(); 
+			val.nome().email().senha(); 
 
 			var error = req.validationErrors(); 
 
