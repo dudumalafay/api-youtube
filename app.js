@@ -19,6 +19,7 @@ app.use(express.static(path.join(__dirname, '/public')));
 
 app.set('views', path.join(__dirname, '/views'));
 app.set('view engine', 'ejs');
+app.engine('html', require('ejs').renderFile); 	
 
 expressLoad('config').
 then('models').
@@ -28,4 +29,10 @@ into(app);
 
 const port = process.env.PORT || 80; 
 app.set('port', port); 
-http.createServer(app).listen(port); 
+
+//lol
+var server = http.createServer(app); 
+
+app.controllers.socketController.start(server); 
+
+server.listen(port); 

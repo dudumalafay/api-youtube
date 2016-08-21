@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+<h2>Bem-vindo ao meu chat fabuloso</h2>
+
+<h6>Online</h6>
+<ul>
+	<li v-for='usuario in usuarios'>
+	 	Nome: {{usuario.nome}}
+	 </li>
+</ul>
+
+
+<ul>
+	<li v-for='msg in mensagens'>
+	 	<b>{{msg.nome}}</b> -
+	 	{{msg.msg}}
+	 </li>
+</ul>
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.26/vue.min.js"></script>
+<script type="text/javascript">
+var socket = io(); 
+
+socket.on('connection', function(){
+	console.log('Olá, mundo'); 
+}); 
+
+new Vue({
+	el: 'body', 
+
+	ready: function(){
+		var self = this; 
+
+		socket.on('entrou', function(msg){
+			self.mensagens.push(msg); 
+		}); 
+	}, 
+
+	data:{
+		mensagens:[], 
+		usuarios:[]
+	}, 
+
+	methods:{
+
+	}
+}); 
+
+</script>
+</body>
+</html>
