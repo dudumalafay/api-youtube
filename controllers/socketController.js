@@ -1,7 +1,10 @@
 var Server = require('socket.io'); 
+var SHA256 = require("crypto-js/sha256"); 
 
 module.exports = (app) =>{
 	var server = null; 
+	//Vou armazenar todos os usuarios aqui. 
+	var usuarios = {}; 
 
 	var methods = {
 
@@ -20,20 +23,39 @@ module.exports = (app) =>{
 				
 				//roda quando um socket emit uma informação
 				socket.on('info', function(data){
-					socket._nome = data.nome; 
-				}); 
-
-				socket.on('disconnect', function(socket){
-					//mandar informações que um usuário saiu; 
-					var msg = {
-						user_name: 'Server', 
-						msg: 'Um usuário saiu da sala'
+					var usuario = {
+						nome: data.nome,
+						hash: SHA256( new Date().toString() + data.nome ).toString(),//só pra garantir que a hash vai ser única
+						status: 'online'
 					}; 
 
-					server.sockets.emit('saiu', msg); 
+					usuarios[usuario.hash] = usuario; 
+					socket._hash = usuario.hash; 
+
+					console.log(socket._hash); 
+
+					var online = {
+						online : usuarios
+					}; 
+
+					server.sockets.emit('info',online); 
+				}); 
+
+				socket.on('disconnect', function(){
+					//mandar informações que um usuário saiu; 
+					var msg = {
+						nome: 'Server', 
+						msg: 'Um usuário saiu da sala', 
+						hash: socket._hash
+					}; 
+
+					server.sockets.emit('saiu', msg);
+
+					delete usuarios[socket._hash];  
 				}); 
 
 				socket.on('mensagem', function(msg){
+					console.log(msg); 
 					server.sockets.emit('mensagem', msg);
 				}); 
 

@@ -9,10 +9,9 @@
 <h6>Online</h6>
 <ul>
 	<li v-for='usuario in usuarios'>
-	 	Nome: {{usuario.nome}}
+	 	Nome: <i>{{usuario.nome}}</i> - status <b>{{usuario.status}}</b>
 	 </li>
 </ul>
-
 
 <ul>
 	<li v-for='msg in mensagens'>
@@ -20,6 +19,16 @@
 	 	{{msg.msg}}
 	 </li>
 </ul>
+<div>
+	<label>Mensagem</label>
+	<input type="text" v-model="texto" @keyup.enter="enviar" >
+</div>
+<hr>
+<h2>Debug</h2>
+
+<pre>
+	{{ usuarios | json}}
+</pre>
 
 <script src="/socket.io/socket.io.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.26/vue.min.js"></script>
@@ -39,15 +48,62 @@ new Vue({
 		socket.on('entrou', function(msg){
 			self.mensagens.push(msg); 
 		}); 
+
+		socket.on('info', function(data){
+			var usuarios = []; 
+			for( key in data.online)
+				usuarios.push(data.online[key]);
+			self.$set('usuarios', usuarios);  
+		}); 
+
+		socket.on('saiu', function(msg){
+			self.mensagens.push(msg); 
+
+			for(var a = 0; a < self.usuarios.length; a++){
+				if(self.usuarios[a].hash == msg.hash){
+					self.usuarios.splice(a,1); 
+					break;
+				}
+			}
+		}); 
+
+		socket.on('mensagem', function(msg){
+			self.mensagens.push(msg); 
+		}); 
+
+		var nome = prompt('Qual é o seu nome?'); 
+
+		if(nome == null)
+			nome = self.usuario_nome; 
+		else
+			self.usuario_nome = nome; 
+
+		socket.emit('info', {nome : nome }); 
 	}, 
 
 	data:{
+		usuario_nome: 'guest', 
 		mensagens:[], 
 		usuarios:[]
 	}, 
 
 	methods:{
+		enviar: function(){
+			texto = this.texto; 
 
+			if(texto == ''){
+				alert('você não pode enviar mensagens em branco.'); 
+				return;
+			}
+
+			this.texto = ''; 
+
+			var msg = {
+				nome: this.usuario_nome, 
+				msg: texto, 
+			}; 
+			socket.emit('mensagem', msg); 
+		}
 	}
 }); 
 
